@@ -1,0 +1,30 @@
+{
+  "name": "tutorial",
+  "version": "1.0.0",
+  "description": "nodejs crud app",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "nodemon index.js"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "devterin",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mysql2": "^3.14.3",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "jest": "^30.0.5",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.10"
+  }
+}
