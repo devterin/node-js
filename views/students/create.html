@@ -49,7 +49,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="/students/list.html" class="btn btn-secondary">Back</a>
+                                <a href="/list.html" class="btn btn-secondary">Back</a>
                                 <button type="submit" class="btn btn-success">Create</button>
                             </div>
                         </form>
@@ -83,8 +83,18 @@
         }
         loadClasses();
 
+        function clearErrors() {
+            const fields = form.querySelectorAll(".form-control, .form-select");
+            fields.forEach(f => {
+                f.classList.remove("is-invalid");
+                const feedback = f.parentNode.querySelector(".invalid-feedback");
+                if (feedback) feedback.remove();
+            });
+        }
+
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
+            clearErrors();
 
             const student = {
                 name: document.getElementById("name").value,
@@ -97,9 +107,7 @@
             try {
                 const response = await fetch("/api/v1/student", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(student),
                 });
 
@@ -107,13 +115,34 @@
                     window.location.href = "/list.html";
                 } else {
                     const errData = await response.json();
-                    console.log("Error creating student: ", errData.message);
+                    if (errData.errors) {
+                        errData.errors.forEach(err => {
+                            const field = document.getElementById(err.path);
+                            if (field) {
+                                field.classList.add("is-invalid");
+                                let feedback = document.createElement("div");
+                                feedback.classList.add("invalid-feedback");
+                                feedback.textContent = err.msg;
+                                field.parentNode.appendChild(feedback);
+                            }
+                        });
+                    } else if (errData.message === "Email already exists") {
+                        const emailField = document.getElementById("email");
+                        emailField.classList.add("is-invalid");
+                        let feedback = document.createElement("div");
+                        feedback.classList.add("invalid-feedback");
+                        feedback.textContent = errData.message;
+                        emailField.parentNode.appendChild(feedback);
+                    } else {
+                        alert(errData.message || "Unexpected error occurred");
+                    }
                 }
             } catch (err) {
                 console.log("Error creating student: ", err);
             }
         });
     </script>
+
 
 </body>
 

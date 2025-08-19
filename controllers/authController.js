@@ -17,15 +17,6 @@ const callbackGoogle = (req, res, next) => {
             return res.redirect("/");
         }
 
-        // Log ra profile Google để debug
-        console.log('=== GOOGLE PROFILE RECEIVED ===');
-        console.log('User ID:', user.id);
-        console.log('Display Name:', user.displayName);
-        console.log('Email:', user.emails && user.emails[0] ? user.emails[0].value : 'No email');
-        console.log('Profile Picture:', user.photos && user.photos[0] ? user.photos[0].value : 'No photo');
-        console.log('Full Profile Object:', JSON.stringify(user, null, 2));
-        console.log('================================');
-
         req.login(user, (err) => {
             if (err) {
                 console.log('Login error:', err);

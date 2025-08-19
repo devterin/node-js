@@ -1,29 +1,29 @@
-const db = require('../config/db.js');
+const Clazz = require('../models/Clazz');
 
 const getAllClass = async () => {
-    const data = await db.query('SELECT * FROM clazz');
-    return data[0];
+    return await Clazz.findAll({
+        raw: true,
+        nest: true
+    });
 };
 
 const createClass = async (name) => {
-    const data = await db.query('INSERT INTO clazz (name) VALUES (?)', [name]);
-    return {
-        id: data[0].insertId,
-        name,
-    };
+    const clazz = await Clazz.create({ name });
+    return clazz;
 };
 
 const updateClass = async (id, name) => {
-    const data = await db.query('UPDATE clazz SET name=? WHERE id=?', [name, id]);
-    return data[0].affectedRows > 0 ? { id, name } : null;
+    const clazz = await Clazz.findByPk(id);
+    if (!clazz) return null;
+    await clazz.update({ name });
+    return clazz;
 };
 
 const deleteClass = async (id) => {
-    const data = await db.query('DELETE FROM clazz WHERE id=?', [id]);
-    if (data[0].affectedRows === 0) {
-        return null;
-    }
-    return { id };
+    const clazz = await Clazz.findByPk(id);
+    if (!clazz) return null;
+    await clazz.destroy();
+    return clazz;
 };
 
 module.exports = {
@@ -32,4 +32,3 @@ module.exports = {
     updateClass,
     deleteClass
 };
-

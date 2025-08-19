@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Update Student</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
@@ -52,14 +51,12 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         const form = document.getElementById("studentForm");
         const params = new URLSearchParams(window.location.search);
         const id = params.get("id");
-
         const classSelect = document.getElementById("class_id");
 
         async function loadClasses() {
@@ -90,8 +87,19 @@
             }
         }
 
+        function clearErrors() {
+            const fields = form.querySelectorAll(".form-control, .form-select");
+            fields.forEach(f => {
+                f.classList.remove("is-invalid");
+                const feedback = f.parentNode.querySelector(".invalid-feedback");
+                if (feedback) feedback.remove();
+            });
+        }
+
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
+            clearErrors();
+
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
             const gender = document.getElementById("gender").value;
@@ -106,6 +114,29 @@
 
             if (res.ok) {
                 window.location.href = "/list.html";
+            } else {
+                const errData = await res.json();
+                if (errData.errors) {
+                    errData.errors.forEach(err => {
+                        const field = document.getElementById(err.path);
+                        if (field) {
+                            field.classList.add("is-invalid");
+                            let feedback = document.createElement("div");
+                            feedback.classList.add("invalid-feedback");
+                            feedback.textContent = err.msg;
+                            field.parentNode.appendChild(feedback);
+                        }
+                    });
+                } else if (errData.message === "Email already exists") {
+                    const emailField = document.getElementById("email");
+                    emailField.classList.add("is-invalid");
+                    let feedback = document.createElement("div");
+                    feedback.classList.add("invalid-feedback");
+                    feedback.textContent = errData.message;
+                    emailField.parentNode.appendChild(feedback);
+                } else {
+                    alert(errData.message || "Unexpected error occurred");
+                }
             }
         });
 

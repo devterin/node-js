@@ -1,20 +1,20 @@
 
-const studentService = require('../services/studentService.js');
-const db = require('../config/db.js');
+const Student = require('../models/Student');
 
-//Mock database
-jest.mock('../config/db.js');
+const studentService = require('../services/studentService.js');
+
+jest.mock('../models/Student');
 
 describe('studentService.getStudents', () => {
 
     it('should return all students', async () => {
         // fake data
-        const mockData = [[
-            { id: 1, name: 'John', gender: 1, birthday: '2000-01-01', email: 'john@example.com', class_id: 1, class_name: 'A1' }
-        ]];
+        const mockData = [
+            { id: 1, name: 'John', gender: 1, birthday: '2000-01-01', email: 'john@example.com', class: { id: 1, name: 'A1' } }
+        ];
 
         // call db , return mockData
-        db.query.mockResolvedValueOnce(mockData);
+        Student.findAll.mockResolvedValueOnce(mockData);
 
         // call method getStudents test
         const result = await studentService.getStudents();
@@ -23,11 +23,34 @@ describe('studentService.getStudents', () => {
         expect(result).toHaveLength(1);
         expect(result[0].name).toBe('John');
         expect(result[0].email).toBe('john@example.com');
+        expect(result[0].class.name).toBe('A1');
     });
 
     it('should return empty array if no students', async () => {
-        db.query.mockResolvedValueOnce([[]]); // trả về mảng rỗng
+        Student.findAll.mockResolvedValueOnce([]);
         const result = await studentService.getStudents();
         expect(result).toHaveLength(0);
+    });
+});
+
+describe('studentService.createStudent', () => {
+    it('should create a student successfully', async () => {
+        const input = { name: 'John Doe', email: 'john@example.com', gender: 1, birthday: '2000-01-01', class_id: 1 };
+        const mockStudent = { id: 1, ...input };
+
+        Student.create.mockResolvedValueOnce(mockStudent);
+
+        const result = await studentService.createStudent(input);
+
+        expect(Student.create).toHaveBeenCalledWith(input);
+        expect(result).toEqual(mockStudent);
+    });
+
+    it('should throw error if creation fails', async () => {
+        const input = { name: 'John Doe', email: 'john@example.com', gender: 1, birthday: '2000-01-01', class_id: 1 };
+
+        Student.create.mockRejectedValueOnce(new Error('DB error'));
+
+        await expect(studentService.createStudent(input)).rejects.toThrow('DB error');
     });
 });
