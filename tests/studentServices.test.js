@@ -38,17 +38,27 @@ describe('studentService.createStudent', () => {
         const input = { name: 'John Doe', email: 'john@example.com', gender: 1, birthday: '2000-01-01', class_id: 1 };
         const mockStudent = { id: 1, ...input };
 
+        Student.findOne.mockResolvedValueOnce(null); // Không trùng email
         Student.create.mockResolvedValueOnce(mockStudent);
 
         const result = await studentService.createStudent(input);
 
+        expect(Student.findOne).toHaveBeenCalledWith({ where: { email: input.email } });
         expect(Student.create).toHaveBeenCalledWith(input);
         expect(result).toEqual(mockStudent);
+    });
+
+    it('should throw error if email already exists', async () => {
+        const input = { name: 'John Doe', email: 'john@example.com', gender: 1, birthday: '2000-01-01', class_id: 1 };
+        Student.findOne.mockResolvedValueOnce({ id: 2, ...input }); // Email đã tồn tại
+
+        await expect(studentService.createStudent(input)).rejects.toThrow('Email already exists');
     });
 
     it('should throw error if creation fails', async () => {
         const input = { name: 'John Doe', email: 'john@example.com', gender: 1, birthday: '2000-01-01', class_id: 1 };
 
+        Student.findOne.mockResolvedValueOnce(null);
         Student.create.mockRejectedValueOnce(new Error('DB error'));
 
         await expect(studentService.createStudent(input)).rejects.toThrow('DB error');

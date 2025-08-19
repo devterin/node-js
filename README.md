@@ -18,7 +18,7 @@ Users must log in with Google to access CRUD functions for students and classes.
 ## Testing
 
 - Test files for services and controllers are provided (using Jest).
-- Test cases include: displaying student list, adding new student, checking for duplicate email, data validation
+- Test cases include: displaying student list, adding new student, checking for duplicate email
 - To run tests:
     ```
     npm test
